@@ -1,0 +1,35 @@
+<div id="calculator">
+  <h2>Calculateur du coût social du carbone produit par les mobilités pendulaires</h2>
+
+  <label for="distance">Distance parcourue aller-retour (km) :</label>
+  <input type="range" id="distance" min="1" max="100" value="20">
+  <output id="distanceValue">20 km</output>
+
+  <label for="departement">Région :</label>
+  <select id="departement">
+    <option value="120,7">Île-de-France</option>
+    <option value="121,8">Hauts-de-France</option>
+    <option value="123,9">Grand Est</option>
+    <option value="123,9">Bourgogne-Franche-Comté</option>
+    <option value="124">Centre-Val de Loire</option>
+    <option value="122,8">Pays de la Loire</option>
+    <option value="122,3">Normandie</option>
+    <option value="123,6">Nouvelle-Aquitaine</option>
+    <option value="122,2">Occitanie</option>
+    <option value="121,4"> Provence-Alpes-Côte d'Azur</option>
+    <option value="123"> Auvergne-Rhône-Alpes</option>
+    <option value="124,7"> Corse</option>
+    <option value="122,9"> Bretagne</option>
+  </select>
+
+  <label for="habitants">Nombre d'habitants :</label>
+  <input type="number" id="habitants" min="1" value="1000">
+
+  <div id="results">
+    <h2>Résultats :</h2>
+    <p>Émissions de CO2 : <output id="emissions">0 kg CO2</output></p>
+    <p>Coût social sur une année : <output id="cout">0 €</output></p>
+    <p>Coût social sur 10 ans : <output id="cout10ans">0 €</output></p>
+    <p>Coût social sur 50 ans : <output id="cout50ans">0 €</output></p>
+  </div>
+</div>
