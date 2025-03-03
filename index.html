@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculateur de coût carbone</title>
+  <title>Calculateur de coût carbone des mobilités pendulaires</title>
   <style>
     /* Styles CSS */
     body {
@@ -83,7 +83,7 @@
 </head>
 <body>
   <div id="calculator">
-    <h2>Calculateur du coût social du carbone</h2>
+    <h2>Calculateur du coût social du carbone émis par les mobilités pendulaires</h2>
 
     <label for="distance">Distance parcourue aller-retour (km) :</label>
     <input type="range" id="distance" min="1" max="100" value="20">
@@ -100,6 +100,10 @@
       <option value="122.3">Normandie</option>
       <option value="123.6">Nouvelle-Aquitaine</option>
       <option value="122.2">Occitanie</option>
+      <option value="122.9">Bretagne</option>
+      <option value="123">Auvergne-Rhône-Alpes</option>
+      <option value="121.4">Provence-Alpes-Côte d'Azur</option>
+      <option value="124.7">Corse</option>
     </select>
 
     <label for="habitants">Nombre d'habitants :</label>
@@ -110,6 +114,7 @@
       <p>Émissions de CO2 : <output id="emissions">0 kg CO2</output></p>
       <p>Coût social sur une année : <output id="cout">0 €</output></p>
       <p>Coût social sur 10 ans : <output id="cout10ans">0 €</output></p>
+      <p>Coût social sur 50 ans : <output id="cout50ans">0 €</output></p>
     </div>
   </div>
 
@@ -121,6 +126,8 @@
     const habitantsInput = document.getElementById('habitants');
     const emissionsOutput = document.getElementById('emissions');
     const coutOutput = document.getElementById('cout');
+    const cout10ansOutput = document.getElementById('cout10ans');
+    const cout50ansOutput = document.getElementById('cout50ans');
 
     function updateCalcul() {
       const distance = parseFloat(distanceSlider.value);
@@ -138,7 +145,11 @@
 
       // Calcul du coût social sur 10 ans
       const cout10ans = cout * 10;
-      document.getElementById('cout10ans').textContent = `${cout10ans.toLocaleString('fr-FR')} €`;
+      cout10ansOutput.textContent = `${cout10ans.toLocaleString('fr-FR')} €`;
+
+      // Calcul du coût social sur 50 ans
+      const cout50ans = cout * 50;
+      cout50ansOutput.textContent = `${cout50ans.toLocaleString('fr-FR')} €`;
     }
 
     distanceSlider.addEventListener('input', () => {
