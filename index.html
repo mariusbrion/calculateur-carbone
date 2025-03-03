@@ -1,35 +1,156 @@
-<div id="calculator">
-  <h2>Calculateur du coût social du carbone produit par les mobilités pendulaires</h2>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculateur de coût carbone</title>
+  <style>
+    /* Styles CSS */
+    body {
+      background-color: #F5F5F5;
+      color: #333333;
+      font-family: 'Roboto', Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
 
-  <label for="distance">Distance parcourue aller-retour (km) :</label>
-  <input type="range" id="distance" min="1" max="100" value="20">
-  <output id="distanceValue">20 km</output>
+    #calculator {
+      background-color: #FFFFFF;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
 
-  <label for="departement">Région :</label>
-  <select id="departement">
-    <option value="120,7">Île-de-France</option>
-    <option value="121,8">Hauts-de-France</option>
-    <option value="123,9">Grand Est</option>
-    <option value="123,9">Bourgogne-Franche-Comté</option>
-    <option value="124">Centre-Val de Loire</option>
-    <option value="122,8">Pays de la Loire</option>
-    <option value="122,3">Normandie</option>
-    <option value="123,6">Nouvelle-Aquitaine</option>
-    <option value="122,2">Occitanie</option>
-    <option value="121,4"> Provence-Alpes-Côte d'Azur</option>
-    <option value="123"> Auvergne-Rhône-Alpes</option>
-    <option value="124,7"> Corse</option>
-    <option value="122,9"> Bretagne</option>
-  </select>
+    h2 {
+      color: #007BFF;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
 
-  <label for="habitants">Nombre d'habitants :</label>
-  <input type="number" id="habitants" min="1" value="1000">
+    label {
+      font-size: 16px;
+      margin-top: 15px;
+      display: block;
+    }
 
-  <div id="results">
-    <h2>Résultats :</h2>
-    <p>Émissions de CO2 : <output id="emissions">0 kg CO2</output></p>
-    <p>Coût social sur une année : <output id="cout">0 €</output></p>
-    <p>Coût social sur 10 ans : <output id="cout10ans">0 €</output></p>
-    <p>Coût social sur 50 ans : <output id="cout50ans">0 €</output></p>
+    input[type="range"], select, input[type="number"] {
+      border: 1px solid #DDDDDD;
+      border-radius: 4px;
+      padding: 8px;
+      width: 100%;
+      max-width: 300px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input[type="range"]:hover, select:hover, input[type="number"]:hover {
+      border-color: #007BFF;
+      box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+    }
+
+    output {
+      font-size: 18px;
+      font-weight: bold;
+      color: #007BFF;
+    }
+
+    #results {
+      margin-top: 20px;
+    }
+
+    @media (max-width: 600px) {
+      h2 {
+        font-size: 20px;
+      }
+
+      label {
+        font-size: 14px;
+      }
+
+      input[type="range"], select, input[type="number"] {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="calculator">
+    <h2>Calculateur du coût social du carbone</h2>
+
+    <label for="distance">Distance parcourue aller-retour (km) :</label>
+    <input type="range" id="distance" min="1" max="100" value="20">
+    <output id="distanceValue">20 km</output>
+
+    <label for="departement">Région :</label>
+    <select id="departement">
+      <option value="120.7">Île-de-France</option>
+      <option value="121.8">Hauts-de-France</option>
+      <option value="123.9">Grand Est</option>
+      <option value="123.9">Bourgogne-Franche-Comté</option>
+      <option value="124">Centre-Val de Loire</option>
+      <option value="122.8">Pays de la Loire</option>
+      <option value="122.3">Normandie</option>
+      <option value="123.6">Nouvelle-Aquitaine</option>
+      <option value="122.2">Occitanie</option>
+    </select>
+
+    <label for="habitants">Nombre d'habitants :</label>
+    <input type="number" id="habitants" min="1" value="1000">
+
+    <div id="results">
+      <h2>Résultats :</h2>
+      <p>Émissions de CO2 : <output id="emissions">0 kg CO2</output></p>
+      <p>Coût social sur une année : <output id="cout">0 €</output></p>
+      <p>Coût social sur 10 ans : <output id="cout10ans">0 €</output></p>
+    </div>
   </div>
-</div>
+
+  <script>
+    // JavaScript
+    const distanceSlider = document.getElementById('distance');
+    const distanceValue = document.getElementById('distanceValue');
+    const departementSelect = document.getElementById('departement');
+    const habitantsInput = document.getElementById('habitants');
+    const emissionsOutput = document.getElementById('emissions');
+    const coutOutput = document.getElementById('cout');
+
+    function updateCalcul() {
+      const distance = parseFloat(distanceSlider.value);
+      const consommation = parseFloat(departementSelect.value);
+      const habitants = parseFloat(habitantsInput.value);
+      const trajetsParAn = 220; // Nombre de jours travaillés par an
+
+      // Calcul des émissions (en kg CO2)
+      const emissions = distance * consommation * trajetsParAn * habitants / 1000;
+      emissionsOutput.textContent = `${emissions.toLocaleString('fr-FR')} kg CO2`;
+
+      // Calcul du coût social annuel (en euros)
+      const cout = emissions * 172 / 1000; // Conversion en tonnes
+      coutOutput.textContent = `${cout.toLocaleString('fr-FR')} €`;
+
+      // Calcul du coût social sur 10 ans
+      const cout10ans = cout * 10;
+      document.getElementById('cout10ans').textContent = `${cout10ans.toLocaleString('fr-FR')} €`;
+    }
+
+    distanceSlider.addEventListener('input', () => {
+      distanceValue.textContent = `${distanceSlider.value} km`;
+      updateCalcul();
+    });
+
+    departementSelect.addEventListener('change', updateCalcul);
+    habitantsInput.addEventListener('input', updateCalcul);
+
+    // Initialisation
+    updateCalcul();
+  </script>
+</body>
+</html>
