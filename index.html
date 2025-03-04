@@ -26,7 +26,13 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       max-width: 400px;
       width: 100%;
-      text-align: center;
+    }
+
+    #graph-container {
+      flex: 1;
+      margin-left: 40px;
+      max-width: 800px;
+      width: 100%;
     }
 
     h2 {
@@ -66,6 +72,17 @@
       margin-top: 20px;
     }
 
+    @media (max-width: 1000px) {
+      body {
+        flex-direction: column;
+      }
+
+      #graph-container {
+        margin-left: 0;
+        margin-top: 40px;
+      }
+    }
+
     @media (max-width: 600px) {
       h2 {
         font-size: 20px;
@@ -80,6 +97,8 @@
       }
     }
   </style>
+  <!-- Intégration de Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div id="calculator">
@@ -113,9 +132,15 @@
       <h2>Résultats :</h2>
       <p>Émissions de CO2 : <output id="emissions">0 kg CO2</output></p>
       <p>Coût social sur une année : <output id="cout">0 €</output></p>
-      <p>Coût social sur 10 ans : <output id="cout10ans">0 €</output></p>
-      <p>Coût social sur 50 ans : <output id="cout50ans">0 €</output></p>
+      <p>Coût social sur 10 ans (stable) : <output id="cout10ans">0 €</output></p>
+      <p>Coût social sur 50 ans (stable) : <output id="cout50ans">0 €</output></p>
+      <p>Coût social sur 50 ans (augmentation) : <output id="cout50ansAugmentation">0 €</output></p>
     </div>
+  </div>
+
+  <!-- Zone pour le graphique -->
+  <div id="graph-container">
+    <canvas id="myChart"></canvas>
   </div>
 
   <script>
@@ -128,6 +153,11 @@
     const coutOutput = document.getElementById('cout');
     const cout10ansOutput = document.getElementById('cout10ans');
     const cout50ansOutput = document.getElementById('cout50ans');
+    const cout50ansAugmentationOutput = document.getElementById('cout50ansAugmentation');
+
+    // Configuration du graphique
+    const ctx = document.getElementById('myChart').getContext('2d');
+    let myChart;
 
     function updateCalcul() {
       const distance = parseFloat(distanceSlider.value);
@@ -140,16 +170,80 @@
       emissionsOutput.textContent = `${emissions.toLocaleString('fr-FR')} kg CO2`;
 
       // Calcul du coût social annuel (en euros)
-      const cout = emissions * 172 / 1000; // Conversion en tonnes
-      coutOutput.textContent = `${cout.toLocaleString('fr-FR')} €`;
+      const coutAnnuel = emissions * 172 / 1000; // Conversion en tonnes
+      coutOutput.textContent = `${coutAnnuel.toLocaleString('fr-FR')} €`;
 
-      // Calcul du coût social sur 10 ans
-      const cout10ans = cout * 10;
+      // Calcul du coût social sur 10 ans (coût stable)
+      const cout10ans = coutAnnuel * 10;
       cout10ansOutput.textContent = `${cout10ans.toLocaleString('fr-FR')} €`;
 
-      // Calcul du coût social sur 50 ans
-      const cout50ans = cout * 50;
+      // Calcul du coût social sur 50 ans (coût stable)
+      const cout50ans = coutAnnuel * 50;
       cout50ansOutput.textContent = `${cout50ans.toLocaleString('fr-FR')} €`;
+
+      // Calcul du coût social sur 50 ans (coût augmentant de 4 €/tonne/an)
+      let coutCumuleAugmentation = 0;
+      for (let annee = 1; annee <= 50; annee++) {
+        const coutAnnuelAugmentation = emissions * (172 + 4 * (annee - 1)) / 1000;
+        coutCumuleAugmentation += coutAnnuelAugmentation;
+      }
+      cout50ansAugmentationOutput.textContent = `${coutCumuleAugmentation.toLocaleString('fr-FR')} €`;
+
+      // Mise à jour du graphique
+      updateChart(coutAnnuel);
+    }
+
+    function updateChart(coutAnnuel) {
+      const annees = Array.from({ length: 50 }, (_, i) => i + 1); // 50 années
+      const coutStable = annees.map((annee) => coutAnnuel * annee); // Coût cumulé stable
+      const coutAugmentation = annees.map((annee) => {
+        let total = 0;
+        for (let i = 1; i <= annee; i++) {
+          total += coutAnnuel * (172 + 4 * (i - 1)) / 172; // Coût cumulé avec augmentation
+        }
+        return total;
+      });
+
+      if (myChart) {
+        myChart.destroy(); // Détruire le graphique existant
+      }
+
+      myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: annees,
+          datasets: [
+            {
+              label: 'Coût cumulé (coût stable)',
+              data: coutStable,
+              borderColor: '#007BFF',
+              fill: false,
+            },
+            {
+              label: 'Coût cumulé (coût augmentant de 4 €/tonne/an)',
+              data: coutAugmentation,
+              borderColor: '#FF6384',
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Années',
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Coût social cumulé (€)',
+              },
+            },
+          },
+        },
+      });
     }
 
     distanceSlider.addEventListener('input', () => {
