@@ -135,6 +135,7 @@
       <p>Coût social sur 10 ans (stable) : <output id="cout10ans">0 €</output></p>
       <p>Coût social sur 50 ans (stable) : <output id="cout50ans">0 €</output></p>
       <p>Coût social sur 50 ans (augmentation) : <output id="cout50ansAugmentation">0 €</output></p>
+      <p>Coût social sur 50 ans (augmentation + électrification) : <output id="cout50ansElectrification">0 €</output></p>
     </div>
   </div>
 
@@ -154,6 +155,7 @@
     const cout10ansOutput = document.getElementById('cout10ans');
     const cout50ansOutput = document.getElementById('cout50ans');
     const cout50ansAugmentationOutput = document.getElementById('cout50ansAugmentation');
+    const cout50ansElectrificationOutput = document.getElementById('cout50ansElectrification');
 
     // Configuration du graphique
     const ctx = document.getElementById('myChart').getContext('2d');
@@ -189,17 +191,41 @@
       }
       cout50ansAugmentationOutput.textContent = `${coutCumuleAugmentation.toLocaleString('fr-FR')} €`;
 
+      // Calcul du coût social sur 50 ans (augmentation + électrification)
+      let coutCumuleElectrification = 0;
+      let parcElectrifie = 4.8; // Pourcentage initial du parc électrifié
+      for (let annee = 1; annee <= 50; annee++) {
+        // Calcul des émissions réduites grâce à l'électrification
+        const emissionsReduites = (-0.8575 * parcElectrifie + 125.57) * distance * trajetsParAn * habitants / 1000;
+        // Coût social avec augmentation annuelle de 4 €/tonne
+        const coutAnnuelElectrification = emissionsReduites * (172 + 4 * (annee - 1)) / 1000;
+        coutCumuleElectrification += coutAnnuelElectrification;
+        // Augmentation du parc électrifié de 1,9 % par an
+        parcElectrifie += 1.9;
+      }
+      cout50ansElectrificationOutput.textContent = `${coutCumuleElectrification.toLocaleString('fr-FR')} €`;
+
       // Mise à jour du graphique
-      updateChart(coutAnnuel);
+      updateChart(coutAnnuel, emissions);
     }
 
-    function updateChart(coutAnnuel) {
+    function updateChart(coutAnnuel, emissions) {
       const annees = Array.from({ length: 50 }, (_, i) => i + 1); // 50 années
       const coutStable = annees.map((annee) => coutAnnuel * annee); // Coût cumulé stable
       const coutAugmentation = annees.map((annee) => {
         let total = 0;
         for (let i = 1; i <= annee; i++) {
-          total += coutAnnuel * (172 + 4 * (i - 1)) / 172; // Coût cumulé avec augmentation
+          total += emissions * (172 + 4 * (i - 1)) / 1000;
+        }
+        return total;
+      });
+      const coutElectrification = annees.map((annee) => {
+        let total = 0;
+        let parcElectrifie = 4.8; // Pourcentage initial du parc électrifié
+        for (let i = 1; i <= annee; i++) {
+          const emissionsReduites = (-0.8575 * parcElectrifie + 125.57) * distanceSlider.value * 220 * habitantsInput.value / 1000;
+          total += emissionsReduites * (172 + 4 * (i - 1)) / 1000;
+          parcElectrifie += 1.9; // Augmentation annuelle de 1,9 %
         }
         return total;
       });
@@ -223,6 +249,12 @@
               label: 'Coût cumulé (coût augmentant de 4 €/tonne/an)',
               data: coutAugmentation,
               borderColor: '#FF6384',
+              fill: false,
+            },
+            {
+              label: 'Coût cumulé (augmentation + électrification)',
+              data: coutElectrification,
+              borderColor: '#32CD32',
               fill: false,
             },
           ],
