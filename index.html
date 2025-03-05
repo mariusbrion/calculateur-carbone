@@ -99,6 +99,10 @@
   </style>
   <!-- Intégration de Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Ajouter Tippy.js et Popper.js -->
+  <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css" />
+  <script src="https://unpkg.com/@popperjs/core@2"></script>
+  <script src="https://unpkg.com/tippy.js@6"></script>
 </head>
 <body>
   <div id="calculator">
@@ -130,12 +134,36 @@
 
     <div id="results">
       <h2>Résultats :</h2>
-      <p>Émissions de CO2 : <output id="emissions">0 kg CO2</output></p>
-      <p>Coût social sur une année : <output id="cout">0 €</output></p>
-      <p>Coût social sur 10 ans (stable) : <output id="cout10ans" title="Coût social calculé sur la base du prix de 172€ la tonne de Co2 selon les chiffres INSEE sur l'année 2023" >0 €</output></p>
-      <p>Coût social sur 50 ans (stable) : <output id="cout50ans">0 €</output></p>
-      <p>Coût social sur 50 ans (augmentation) : <output id="cout50ansAugmentation">0 €</output></p>
-      <p>Coût social sur 50 ans (augmentation + électrification) : <output id="cout50ansElectrification">0 €</output></p>
+      <p>Émissions de CO2 : 
+        <output id="emissions" data-tippy-content="Ces émissions sont basées sur l'hypothèse de 220 trajets par an.">
+          0 kg CO2
+        </output>
+      </p>
+      <p>Coût social sur une année : 
+        <output id="cout" data-tippy-content="Le prix de la tonne de CO₂ pour arriver à ce résultat est de 172 €, en s'appuyant sur les chiffres de l'INSEE datés de 2023.">
+          0 €
+        </output>
+      </p>
+      <p>Coût social sur 10 ans (Coût du Co2 invariable) : 
+        <output id="cout10ans" data-tippy-content="Ce résultat repose sur l'hypothèse que le prix du carbone reste à 172 € par tonne de CO₂. Il considère également que les émissions des véhicules restent constantes en grammes de CO₂ par kilomètre. Pour ces deux raisons, il s'agit d'un résultat indicatif qui ne doit pas être considéré comme fiable.">
+          0 €
+        </output>
+      </p>
+      <p>Coût social sur 50 ans (Coût du Co2 invariable) : 
+        <output id="cout50ans" data-tippy-content="Ce résultat repose sur l'hypothèse que le prix du carbone reste à 172 € par tonne de CO₂. Il considère également que les émissions des véhicules restent constantes en grammes de CO₂ par kilomètre. Pour ces deux raisons, il s'agit d'un résultat indicatif qui ne doit pas être considéré comme fiable.">
+          0 €
+        </output>
+      </p>
+      <p>Coût social sur 50 ans (évolution du Coût du Co2) : 
+        <output id="cout50ansAugmentation" data-tippy-content="En prenant en compte le fait que, sur la période 2018-2023, le coût social de la tonne de CO₂ a augmenté en moyenne de 4,3 €, et que cette augmentation, au vu des enjeux climatiques croissants, est très probablement exponentielle, le choix a été fait dans le calcul de modéliser une augmentation de seulement 4 € par an du coût de la tonne de CO₂. Il est important de noter que cette augmentation est sous-évaluée, mais elle permet à titre indicatif de visualiser l'ampleur du coût pour la société de telles émissions ainsi que l'importance croissante de les réduire, tout en s'assurant que le modèle ne repose pas sur des hypothèses d'augmentation du coût incertaines. Toutefois, il considère que les émissions des véhicules restent constantes en grammes de CO₂ par kilomètre. Ce calcul permet donc de constater l'impact environnemental des mobilités pendulaires en gardant un parc de véhicules majoritairement thermiques.">
+          0 €
+        </output>
+      </p>
+      <p>Coût social sur 50 ans (évolution du Coût du Co2 + électrification du parc automobile progressive) : 
+        <output id="cout50ansElectrification" data-tippy-content="Ce calcul prend en compte une électrification du parc automobile de 1,9 % par an pour arriver à un parc 100 % électrique au bout de 50 ans. (De 2022 à 2025, elle est en réalité décroissante et en moyenne de 1,2 % selon les chiffres de l'Union Française de l'Électricité ; cette hypothèse est donc optimiste concernant le développement de la voiture électrique, mais elle tient compte des mesures visant à interdire la vente de véhicules thermiques en 2035 et sert d'outil montrant l'impact de l'électrification du parc automobile). Il part également du postulat que les véhicules électriques émettent en moyenne 40 g de CO₂ par km. Cette hypothèse dépend évidemment du mix énergétique, de la taille du véhicule ainsi que des avancées technologiques, mais elle corrobore les nombreuses études qui estiment l'impact environnemental de la voiture électrique comme étant deux à trois fois moins important que celui de la voiture thermique.">
+          0 €
+        </output>
+      </p>
     </div>
   </div>
 
@@ -285,6 +313,14 @@
 
     departementSelect.addEventListener('change', updateCalcul);
     habitantsInput.addEventListener('input', updateCalcul);
+
+    // Activer Tippy.js sur tous les éléments avec l'attribut data-tippy-content
+    tippy('[data-tippy-content]', {
+      placement: 'top', // Position de l'infobulle
+      delay: [100, 0], // Délai d'apparition et de disparition
+      theme: 'light', // Thème de l'infobulle
+      arrow: true, // Ajouter une flèche à l'infobulle
+    });
 
     // Initialisation
     updateCalcul();
